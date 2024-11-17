@@ -81,7 +81,7 @@ app.post('/login', async (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.sendFile(resolve(__dirname, 'pages/index.html'));
+  res.sendFile(path.resolve(__dirname, 'pages/index.html'));
 });
 
 app.listen(port, () => {
