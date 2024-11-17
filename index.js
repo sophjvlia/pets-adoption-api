@@ -39,10 +39,10 @@ app.post('/signup', async (req, res) => {
     );
     const user = result.rows[0];
 
-    res.status(200).json(
+    res.status(200).json({
       message: 'User create successfully',
       user: { id: user.id, email: user.email }
-    );
+    });
   } catch (error) {
     console.error('Error registering user:', error);
     res.status(500).json(
