@@ -95,95 +95,95 @@ app.post('/login', async (req, res) => {
   }
 });
 
-app.post('/add-pet', upload.single('image'), async (req,res) => {
-  try {
-    const { name, age, breed, description, status } = req.body;
-    const file = req.file;
+// app.post('/add-pet', upload.single('image'), async (req,res) => {
+//   try {
+//     const { name, age, breed, description, status } = req.body;
+//     const file = req.file;
 
-    if (!file) {
-      return res.status(400).send('No image uploaded');
-    }
+//     if (!file) {
+//       return res.status(400).send('No image uploaded');
+//     }
 
-    const fileName = file.originalname;
-    const fileRef = bucket.file(`pets/${fileName}`);
+//     const fileName = file.originalname;
+//     const fileRef = bucket.file(`pets/${fileName}`);
 
-    await fileRef.save(file.buffer, {
-      metadata: { contentType: file.mimetype },
-    });
+//     await fileRef.save(file.buffer, {
+//       metadata: { contentType: file.mimetype },
+//     });
 
-    const [uploadedFileUrl] = await fileUpload.getSignedUrl({
-      action: 'read',
-      expires: '03-01-2500',
-    });
+//     const [uploadedFileUrl] = await fileUpload.getSignedUrl({
+//       action: 'read',
+//       expires: '03-01-2500',
+//     });
 
-    const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
+//     const imageUrl = `https://storage.googleapis.com/${bucket.name}/${fileName}`;
 
-    const query = `
-      INSERT INTO pets (name, age, breed, description, status, image_url)
-      VALUES ($1, $2, $3, $4, $5)
-      RETURNING *;
-    `;
-    const values = [name, age, breed, description, status, imageUrl];
+//     const query = `
+//       INSERT INTO pets (name, age, breed, description, status, image_url)
+//       VALUES ($1, $2, $3, $4, $5)
+//       RETURNING *;
+//     `;
+//     const values = [name, age, breed, description, status, imageUrl];
 
-    const result = await pool.query(query, values);
-    res.status(201).json(result.rows[0]);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred');
-  }
-});
+//     const result = await pool.query(query, values);
+//     res.status(201).json(result.rows[0]);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('An error occurred');
+//   }
+// });
 
-app.get('/pets', async (req, res) => {
-  try {
-    const result = await pool.query('SELECT * FROM pets WHERE status = "Active"');
-    res.status(200).json(result.rows);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('An error occurred');
-  }
-});
+// app.get('/pets', async (req, res) => {
+//   try {
+//     const result = await pool.query('SELECT * FROM pets WHERE status = "Active"');
+//     res.status(200).json(result.rows);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).send('An error occurred');
+//   }
+// });
 
 
-app.put('/pets/:id', upload.single('image'), async (req, res) => {
-  const { id } = req.params;
-  const { name, age, breed, description, status } = req.body;
-  const file = req.file;
+// app.put('/pets/:id', upload.single('image'), async (req, res) => {
+//   const { id } = req.params;
+//   const { name, age, breed, description, status } = req.body;
+//   const file = req.file;
 
-  try {
-    const petResult = await pool.query('SELECT * FROM pets WHERE id = $1', [id]);
-    if (petResult.rows.length === 0) {
-      return res.status(404).json({ error: 'Pet not found' });
-    }
+//   try {
+//     const petResult = await pool.query('SELECT * FROM pets WHERE id = $1', [id]);
+//     if (petResult.rows.length === 0) {
+//       return res.status(404).json({ error: 'Pet not found' });
+//     }
 
-    let imageUrl = petResult.rows[0].image_url;
+//     let imageUrl = petResult.rows[0].image_url;
 
-    if (file) {
-      const fileName = file.originalname;
-      const fileUpload = bucket.file(`pets/${fileName}`);
+//     if (file) {
+//       const fileName = file.originalname;
+//       const fileUpload = bucket.file(`pets/${fileName}`);
 
-      await fileUpload.save(file.buffer, {
-        metadata: { contentType: file.mimetype },
-      });
+//       await fileUpload.save(file.buffer, {
+//         metadata: { contentType: file.mimetype },
+//       });
 
-      const [uploadedFileUrl] = await fileUpload.getSignedUrl({
-        action: 'read',
-        expires: '03-01-2500',
-      });
+//       const [uploadedFileUrl] = await fileUpload.getSignedUrl({
+//         action: 'read',
+//         expires: '03-01-2500',
+//       });
 
-      imageUrl = uploadedFileUrl;
-    }
+//       imageUrl = uploadedFileUrl;
+//     }
 
-    await pool.query(
-      'UPDATE pets SET name = $1, age = $2, breed = $3, description = $4, status = $5, image_url = $6 WHERE id = $7',
-      [name, age, breed, description, status, imageUrl, id]
-    );
+//     await pool.query(
+//       'UPDATE pets SET name = $1, age = $2, breed = $3, description = $4, status = $5, image_url = $6 WHERE id = $7',
+//       [name, age, breed, description, status, imageUrl, id]
+//     );
 
-    res.json({ message: 'Pet updated successfully', imageUrl });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update pet' });
-  }
-});
+//     res.json({ message: 'Pet updated successfully', imageUrl });
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ error: 'Failed to update pet' });
+//   }
+// });
 
 
 app.get('/', (req, res) => {
