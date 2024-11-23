@@ -4,6 +4,8 @@ const cors = require('cors');
 const pg = require('pg');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const multer = require('multer');
+const admin = require('firebase-admin');
 
 require('dotenv').config();
 
@@ -16,6 +18,19 @@ const pool = new Pool({
 
 app.use(cors());
 app.use(express.json());
+
+// Firebase setup
+const serviceAccount = require(process.env.FIREBASE_KEY_PATH);
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  storageBucket: 'twitter-app-90521.appspot.com',
+});
+const bucket = admin.storage().bucket();
+
+// Multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+});
 
 app.post('/signup', async (req, res) => {
   const { first_name, last_name, phone_number, email, password } = req.body;
