@@ -33,7 +33,7 @@ const upload = multer({
 });
 
 app.post('/signup', async (req, res) => {
-  const { first_name, last_name, phone_number, email, password } = req.body;
+  const { firstName, lastName, phoneNumber, email, password } = req.body;
 
   try {
     const existingUser = await pool.query(
@@ -50,7 +50,7 @@ app.post('/signup', async (req, res) => {
 
     const result = await pool.query(
       'INSERT INTO users (first_name, last_name, phone_number, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id', 
-      [first_name, last_name, phone_number, email, password]
+      [firstName, lastName, phoneNumber, email, password]
     );
     const user = result.rows[0];
 
