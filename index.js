@@ -25,6 +25,19 @@ const upload = multer({
   storage: multer.memoryStorage(),
 });
 
+app.get('/test', async (req, res) => {
+  try {
+    const response = await pool.query(
+      'SELECT * FROM users'
+    );
+    
+    res.json(response.rows);
+  } catch (error) {
+    console.error('Error fetching users:', error.message);
+    res.status(500).json({ error: 'Failed to fetch users' });
+  }
+});
+
 app.post('/signup', async (req, res) => {
   const { firstName, lastName, phoneNumber, email, password } = req.body;
 
@@ -43,13 +56,13 @@ app.post('/signup', async (req, res) => {
 
     const result = await pool.query(
       'INSERT INTO users (first_name, last_name, phone_number, email, password) VALUES ($1, $2, $3, $4, $5) RETURNING id', 
-      [firstName, lastName, phoneNumber, email, password]
+      [firstName, lastName, phoneNumber, email, hashedPassword]
     );
     const user = result.rows[0];
 
     res.status(200).json({
       message: 'User create successfully',
-      user: { id: user.id, email: user.email }
+      user: user
     });
   } catch (error) {
     console.error('Error registering user:', error);
