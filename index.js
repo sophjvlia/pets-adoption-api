@@ -18,6 +18,7 @@ const pool = new Pool({
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 
 // Multer for file uploads
@@ -25,17 +26,8 @@ const upload = multer({
   storage: multer.memoryStorage(),
 });
 
-app.get('/test', async (req, res) => {
-  try {
-    const response = await pool.query(
-      'SELECT * FROM users'
-    );
-    
-    res.json(response.rows);
-  } catch (error) {
-    console.error('Error fetching users:', error.message);
-    res.status(500).json({ error: 'Failed to fetch users' });
-  }
+app.get('/test', (req, res) => {
+  res.json({ message: 'Test route is working!' });
 });
 
 app.post('/signup', async (req, res) => {
